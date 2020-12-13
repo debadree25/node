@@ -351,6 +351,210 @@ if (isMainThread) {
 }
 ```
 
+## `worker.locks`
+<!-- YAML
+added: REPLACEME
+-->
+
+> Stability: 1 - Experimental
+
+* {LockManager}
+
+An instance of a [`LockManager`][].
+
+### Class: `Lock`
+<!-- YAML
+added: REPLACEME
+-->
+
+The Lock interface provides the name and mode of a previously requested lock,
+which is received in the callback to [`locks.request()`][].
+
+#### `lock.name`
+<!-- YAML
+added: REPLACEME
+-->
+
+* {string}
+
+The name of this lock.
+
+#### `lock.mode`
+<!-- YAML
+added: REPLACEME
+-->
+
+* {string}
+
+The mode of this lock. Either `shared` or `exclusive`.
+
+### Class: `LockManager`
+<!-- YAML
+added: REPLACEME
+-->
+
+The `LockManager` interface provides methods for requesting a new [`Lock`][]
+object and querying for an existing `Lock` object. To get an instance of
+`LockManager`, call `worker_threads.locks`.
+
+With the exception of `AbortController` support, this implementation matches
+the [browser `LockManager`][] API.
+
+#### `locks.request(name[, options], callback)`
+<!-- YAML
+added: REPLACEME
+-->
+
+* `name` {string}
+* `options` {Object}
+  * `mode` {string} Either `'exclusive'` or `'shared'`. **Default:**
+    `'exclusive'`.
+  * `ifAvailable` {boolean} If `true`, the lock request will only be
+    granted if it is not already held. If it cannot be granted, the
+    callback will be invoked with `null` instead of a `Lock` instance.
+    **Default:** `false`.
+  * `steal` {boolean} If `true`, then any held locks with the same name will be
+    released, and the request will be granted, preempting any queued requests
+    for it. **Default:** `false`.
+* `callback` {Function} The function to be invoked while the lock is acquired.
+  The lock will be released when the function ends, or if the function returns
+  a promise, when that promise settles.
+* Returns: {Promise}
+
+Requests a [`Lock`][] object with parameters specifying its name and
+characteristics.
+
+```js
+worker_threads.locks.request('my_resource', async (lock) => {
+  // The lock was granted.
+}).then(() => {
+  // The lock is released here.
+});
+```
+
+#### `locks.query()`
+<!-- YAML
+added: REPLACEME
+-->
+
+* Returns: {Promise}
+
+Returns a Promise that resolves with a [`LockManagerSnapshot`][] which contains
+information about held and pending locks.
+
+```js
+worker_threads.locks.query().then((state) => {
+  state.held.forEach((lock) => {
+    console.log(`held lock: name ${lock.name}, mode ${lock.mode}`);
+  });
+  state.pending.forEach((request) => {
+    console.log(`requested lock: name ${request.name}, mode ${request.mode}`);
+  });
+});
+```
+
+## `worker.locks`
+<!-- YAML
+added: REPLACEME
+-->
+
+> Stability: 1 - Experimental
+
+* {LockManager}
+
+An instance of a [`LockManager`][].
+
+### Class: `Lock`
+<!-- YAML
+added: REPLACEME
+-->
+
+The Lock interface provides the name and mode of a previously requested lock,
+which is received in the callback to [`locks.request()`][].
+
+#### `lock.name`
+<!-- YAML
+added: REPLACEME
+-->
+
+* {string}
+
+The name of this lock.
+
+#### `lock.mode`
+<!-- YAML
+added: REPLACEME
+-->
+
+* {string}
+
+The mode of this lock. Either `shared` or `exclusive`.
+
+### Class: `LockManager`
+<!-- YAML
+added: REPLACEME
+-->
+
+The `LockManager` interface provides methods for requesting a new [`Lock`][]
+object and querying for an existing `Lock` object. To get an instance of
+`LockManager`, call `worker_threads.locks`.
+
+With the exception of `AbortController` support, this implementation matches
+the [browser `LockManager`][] API.
+
+#### `locks.request(name[, options], callback)`
+<!-- YAML
+added: REPLACEME
+-->
+
+* `name` {string}
+* `options` {Object}
+  * `mode` {string} Either `'exclusive'` or `'shared'`. **Default:**
+    `'exclusive'`.
+  * `ifAvailable` {boolean} If `true`, the lock request will only be
+    granted if it is not already held. If it cannot be granted, the
+    callback will be invoked with `null` instead of a `Lock` instance.
+    **Default:** `false`.
+  * `steal` {boolean} If `true`, then any held locks with the same name will be
+    released, and the request will be granted, preempting any queued requests
+    for it. **Default:** `false`.
+* `callback` {Function} The function to be invoked while the lock is acquired.
+  The lock will be released when the function ends, or if the function returns
+  a promise, when that promise settles.
+* Returns: {Promise}
+
+Requests a [`Lock`][] object with parameters specifying its name and
+characteristics.
+
+```js
+worker_threads.locks.request('my_resource', async (lock) => {
+  // The lock was granted.
+}).then(() => {
+  // The lock is released here.
+});
+```
+
+#### `locks.query()`
+<!-- YAML
+added: REPLACEME
+-->
+
+* Returns: {Promise}
+
+Returns a Promise that resolves with a [`LockManagerSnapshot`][] which contains
+information about held and pending locks.
+
+```js
+worker_threads.locks.query().then((state) => {
+  state.held.forEach((lock) => {
+    console.log(`held lock: name ${lock.name}, mode ${lock.mode}`);
+  });
+  state.pending.forEach((request) => {
+    console.log(`requested lock: name ${request.name}, mode ${request.mode}`);
+  });
+});
+```
+
 ## Class: `BroadcastChannel extends EventTarget`
 
 <!-- YAML
@@ -1364,21 +1568,25 @@ thread spawned will spawn another until the application crashes.
 [`ERR_MISSING_MESSAGE_PORT_IN_TRANSFER_LIST`]: errors.md#err_missing_message_port_in_transfer_list
 [`ERR_WORKER_NOT_RUNNING`]: errors.md#err_worker_not_running
 [`EventTarget`]: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget
-[`FileHandle`]: fs.md#class-filehandle
-[`MessagePort`]: #class-messageport
+[`FileHandle`]: fs.md#fs_class_filehandle
+[`KeyObject`]: crypto.md#crypto_class_keyobject
+[`Lock`]: #worker_threads_class_lock
+[`LockManager`]: #worker_threads_class_lockmanager
+[`LockManagerSnapshot`]: https://developer.mozilla.org/en-US/docs/Web/API/LockManagerSnapshot
+[`MessagePort`]: #worker_threads_class_messageport
 [`SharedArrayBuffer`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer
 [`Uint8Array`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array
 [`WebAssembly.Module`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/Module
 [`Worker constructor options`]: #new-workerfilename-options
 [`Worker`]: #class-worker
 [`data:` URL]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs
-[`fs.close()`]: fs.md#fsclosefd-callback
-[`fs.open()`]: fs.md#fsopenpath-flags-mode-callback
-[`markAsUntransferable()`]: #workermarkasuntransferableobject
-[`node:cluster` module]: cluster.md
-[`perf_hooks.performance`]: perf_hooks.md#perf_hooksperformance
-[`perf_hooks` `eventLoopUtilization()`]: perf_hooks.md#performanceeventlooputilizationutilization1-utilization2
-[`port.on('message')`]: #event-message
+[`fs.close()`]: fs.md#fs_fs_close_fd_callback
+[`fs.open()`]: fs.md#fs_fs_open_path_flags_mode_callback
+[`locks.request()`]: #worker_threads_locks_request_name_options_callback
+[`markAsUntransferable()`]: #worker_threads_worker_markasuntransferable_object
+[`perf_hooks.performance`]: perf_hooks.md#perf_hooks_perf_hooks_performance
+[`perf_hooks` `eventLoopUtilization()`]: perf_hooks.md#perf_hooks_performance_eventlooputilization_utilization1_utilization2
+[`port.on('message')`]: #worker_threads_event_message
 [`port.onmessage()`]: https://developer.mozilla.org/en-US/docs/Web/API/MessagePort/onmessage
 [`port.postMessage()`]: #portpostmessagevalue-transferlist
 [`process.abort()`]: process.md#processabort
@@ -1399,12 +1607,14 @@ thread spawned will spawn another until the application crashes.
 [`trace_events`]: tracing.md
 [`v8.getHeapSnapshot()`]: v8.md#v8getheapsnapshotoptions
 [`vm`]: vm.md
-[`worker.SHARE_ENV`]: #workershare_env
-[`worker.on('message')`]: #event-message_1
-[`worker.postMessage()`]: #workerpostmessagevalue-transferlist
-[`worker.terminate()`]: #workerterminate
-[`worker.threadId`]: #workerthreadid_1
-[async-resource-worker-pool]: async_context.md#using-asyncresource-for-a-worker-thread-pool
+[`Worker constructor options`]: #worker_threads_new_worker_filename_options
+[`worker.on('message')`]: #worker_threads_event_message_1
+[`worker.postMessage()`]: #worker_threads_worker_postmessage_value_transferlist
+[`worker.SHARE_ENV`]: #worker_threads_worker_share_env
+[`worker.terminate()`]: #worker_threads_worker_terminate
+[`worker.threadId`]: #worker_threads_worker_threadid_1
+[async-resource-worker-pool]: async_hooks.md#async-resource-worker-pool
+[browser `LockManager`]: https://developer.mozilla.org/en-US/docs/Web/API/LockManager
 [browser `MessagePort`]: https://developer.mozilla.org/en-US/docs/Web/API/MessagePort
 [child processes]: child_process.md
 [contextified]: vm.md#what-does-it-mean-to-contextify-an-object

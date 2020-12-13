@@ -120,6 +120,7 @@ if (!common.isMainThread) {
     'NativeModule internal/streams/writable',
     'NativeModule internal/worker',
     'NativeModule internal/worker/io',
+    'NativeModule internal/worker/locks',
     'NativeModule stream',
     'NativeModule stream/promises',
     'NativeModule string_decoder',

@@ -118,6 +118,19 @@ class Message : public MemoryRetainer {
   friend class MessagePort;
 };
 
+enum class MessageMode {
+  // Regular messages. Sent and delivered to all recipients.
+  NORMAL,
+
+  // Sticky messages. Like normal, but also delivered as the first message for
+  // new message ports in the sibling group.
+  STICKY,
+
+  // Close message. Will only be delivered right before the sending message port
+  // is being closed.
+  ONCLOSE
+};
+
 class SiblingGroup final : public std::enable_shared_from_this<SiblingGroup> {
  public:
   // Named SiblingGroup, Used for one-to-many BroadcastChannels.
@@ -139,6 +152,7 @@ class SiblingGroup final : public std::enable_shared_from_this<SiblingGroup> {
   v8::Maybe<bool> Dispatch(
       MessagePortData* source,
       std::shared_ptr<Message> message,
+      MessageMode = MessageMode::NORMAL,
       std::string* error = nullptr);
 
   void Entangle(MessagePortData* data);
@@ -153,6 +167,8 @@ class SiblingGroup final : public std::enable_shared_from_this<SiblingGroup> {
   const std::string name_;
   RwLock group_mutex_;  // Protects ports_.
   std::set<MessagePortData*> ports_;
+  std::shared_ptr<Message> sticky_message_;
+  Mutex group_mutex_;
 
   static void CheckSiblingGroup(const std::string& name);
 
@@ -180,6 +196,7 @@ class MessagePortData : public TransferData {
   void AddToIncomingQueue(std::shared_ptr<Message> message);
   v8::Maybe<bool> Dispatch(
       std::shared_ptr<Message> message,
+      MessageMode mode = MessageMode::NORMAL,
       std::string* error = nullptr);
 
   // Turns `a` and `b` into siblings, i.e. connects the sending side of one
@@ -211,6 +228,7 @@ class MessagePortData : public TransferData {
   std::deque<std::shared_ptr<Message>> incoming_messages_;
   MessagePort* owner_ = nullptr;
   std::shared_ptr<SiblingGroup> group_;
+  std::shared_ptr<Message> close_message_;
   friend class MessagePort;
   friend class SiblingGroup;
 };
@@ -244,7 +262,8 @@ class MessagePort : public HandleWrap {
   v8::Maybe<bool> PostMessage(Environment* env,
                               v8::Local<v8::Context> context,
                               v8::Local<v8::Value> message,
-                              const TransferList& transfer);
+                              const TransferList& transfer,
+                              MessageMode mode = MessageMode::NORMAL);
 
   // Start processing messages on this port as a receiving end.
   void Start();
