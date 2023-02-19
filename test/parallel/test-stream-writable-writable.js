@@ -2,7 +2,7 @@
 const common = require('../common');
 const assert = require('assert');
 
-const { Writable } = require('stream');
+const { Writable, isWritable } = require('stream');
 
 {
   const w = new Writable({
@@ -45,4 +45,13 @@ const { Writable } = require('stream');
   assert.strictEqual(w.writable, true);
   w.end();
   assert.strictEqual(w.writable, false);
+}
+
+{
+  const w = new Writable({
+    write: common.mustNotCall()
+  });
+  assert.strictEqual(isWritable(w), true);
+  w.end();
+  assert.strictEqual(isWritable(w), false);
 }

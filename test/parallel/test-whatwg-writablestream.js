@@ -27,6 +27,10 @@ const {
   inspect,
 } = require('util');
 
+const {
+  isWritable
+} = require('stream');
+
 class Sink {
   constructor() {
     this.chunks = [];
@@ -251,4 +255,13 @@ class Sink {
 
   assert.strictEqual(writer.desiredSize, null);
   setImmediate(() => assert.strictEqual(writer.desiredSize, null));
+}
+
+{
+  const sink = new Sink();
+  const writable = new WritableStream(sink);
+  assert.strictEqual(isWritable(writable), true);
+  writable.close().then(common.mustCall(() => {
+    assert.strictEqual(isWritable(writable), false);
+  }));
 }
