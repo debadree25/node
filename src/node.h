@@ -483,6 +483,7 @@ struct IsolateSettings {
       allow_wasm_code_generation_callback = nullptr;
   v8::ModifyCodeGenerationFromStringsCallback2
       modify_code_generation_from_strings_callback = nullptr;
+  v8::WasmLoadSourceMapCallback wasm_load_source_map_callback = nullptr;
 };
 
 // Represents a startup snapshot blob, e.g. created by passing

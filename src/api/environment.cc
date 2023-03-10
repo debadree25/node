@@ -12,6 +12,7 @@
 #include "node_snapshot_builder.h"
 #include "node_v8_platform-inl.h"
 #include "node_wasm_web_api.h"
+#include "util-inl.h"
 #include "uv.h"
 #ifdef NODE_ENABLE_VTUNE_PROFILING
 #include "../deps/v8/src/third_party/vtune/v8-vtune.h"
@@ -260,12 +261,25 @@ void SetIsolateErrorHandlers(v8::Isolate* isolate, const IsolateSettings& s) {
   }
 }
 
+Local<String> WASMLoadSourceMapCb(Isolate* isolate, const char* path) {
+  std::string contents;
+  int r = ReadFileSync(&contents, path);
+  if (r == 0) {
+    return String::NewFromUtf8(isolate, contents.c_str()).ToLocalChecked();
+  }
+  return String::Empty(isolate);
+}
+
 void SetIsolateMiscHandlers(v8::Isolate* isolate, const IsolateSettings& s) {
   isolate->SetMicrotasksPolicy(s.policy);
 
   auto* allow_wasm_codegen_cb = s.allow_wasm_code_generation_callback ?
     s.allow_wasm_code_generation_callback : AllowWasmCodeGenerationCallback;
   isolate->SetAllowWasmCodeGenerationCallback(allow_wasm_codegen_cb);
+
+  auto* wasm_load_source_map_callback = s.wasm_load_source_map_callback ? 
+    s.wasm_load_source_map_callback : WASMLoadSourceMapCb;
+  isolate->SetWasmLoadSourceMapCallback(wasm_load_source_map_callback);
 
   auto* modify_code_generation_from_strings_callback =
       ModifyCodeGenerationFromStrings;
